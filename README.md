@@ -19,15 +19,9 @@ data extraction via BAML. It includes a Streamlit frontend for easy interaction 
    curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
-2. Create and activate a virtual environment:
+2. Sync the dependencies:
    ```bash
-   uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   uv pip install -r requirements.txt
+   uv sync
    ```
 
 ## Run FastAPI server
