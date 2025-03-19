@@ -19,7 +19,7 @@ app = FastAPI()
 
 def convert_pdf_to_images(pdf_bytes: bytes) -> List[Image.Image]:
     try:
-        return convert_from_bytes(pdf_bytes, dpi=200, fmt="png")
+        return convert_from_bytes(pdf_bytes, dpi=300, fmt="png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error converting PDF: {str(e)}")
 
@@ -71,15 +71,22 @@ async def extract(file: UploadFile = File(...)):
         if not images:
             raise HTTPException(status_code=400, detail="No images could be extracted")
 
-        # Convert first image to BAML Image for extraction
-        baml_image = img_to_baml_image(images[0])
-
-        # Call BAML function
-        result = b.ExtractFromImage(baml_image)
-        
-        # Convert all images to base64 for response
+        # Process each image and extract data
+        extraction_results = []
         image_data = []
+        
         for i, img in enumerate(images):
+            # Convert image to BAML Image for extraction
+            baml_image = img_to_baml_image(img)
+            
+            # Call BAML function for this image
+            result = b.ExtractFromImage(baml_image)
+            extraction_results.append({
+                "page": i+1,
+                "data": result
+            })
+            
+            # Convert image to base64 for response
             buffer = io.BytesIO()
             img.save(buffer, format="PNG")
             base64_str = base64.b64encode(buffer.getvalue()).decode()
@@ -88,8 +95,8 @@ async def extract(file: UploadFile = File(...)):
                 "image": base64_str
             })
 
-        return {"result": result, "images": image_data}
-
+        return {"results": extraction_results, "images": image_data}
+        
     except Exception as e:
         logging.error(f"Extraction error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

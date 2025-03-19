@@ -18,7 +18,7 @@ test TestOne {
   functions [ExtractFromImage]
   args {
     img {
-      file "../../files/images/invoice.png"
+      file "./invoice.png"
     }
   }
 }

@@ -46,7 +46,21 @@ if uploaded_file is not None:
                     # Display the extraction result
                     st.success("Data extracted successfully!")
                     st.subheader("Extracted Data")
-                    st.json(result["result"])
+                    
+                    # Handle the new multi-page results format
+                    if "results" in result:
+                        # Create tabs for each page's extraction results
+                        if len(result["results"]) > 1:
+                            tabs = st.tabs([f"Page {item['page']}" for item in result["results"]])
+                            for i, tab in enumerate(tabs):
+                                with tab:
+                                    st.json(result["results"][i]["data"])
+                        else:
+                            # Just one page, no need for tabs
+                            st.json(result["results"][0]["data"])
+                    else:
+                        # Fallback for old API format
+                        st.json(result.get("result", {}))
                     
                     # Handle the images
                     if "images" in result:
